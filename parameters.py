@@ -43,7 +43,7 @@ params['loss_function'] = 'CrossEntropyLoss'  # <- It must be set manually. (sna
 # ============================= model parameter control panel =============================
 # ================================= in test environment ===================================
 test_params = OrderedDict()
-test_params['test_batch'] = 8
+test_params['test_batch'] = 100
 test_params['num_classes'] = 2
 test_params['resized'] = (800, 800)
 test_params['mean'] = [0.485, 0.456, 0.406]

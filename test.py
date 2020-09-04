@@ -1,23 +1,24 @@
 import torch
 import torchvision.transforms as transforms
-from torchvision.datasets import ImageFolder
 from torch.utils.data import DataLoader
 import os
 
 from parameters import *
 from networks.nets import *
 from eval.evaluator import *
+from dataloader.dataset import DictFolder
+from functions.utils import *
+from path import DataManager, DirectoryManager
 
 if __name__ == "__main__":
     # ------------------------------------------------------------------------------------------------------------------
-    branch_num = 1
-    epoch_num = 40
     # ========================================== dir & param ==========================================
-    data_dir = r'/home/user/Desktop/test_dataset'
-    weight_dir = os.path.join('./save', 'branch_'+str(branch_num), model_name+'_epoch_'+str(epoch_num)+'.pth')
-    dst_dir = os.path.join(data_dir, 'predicton/branch_1')
-    # store_num = 10
-    the_name = os.path.splitext(os.path.basename(weight_dir))[0]
+    mode = 'test'
+    branch_num = 2
+    epoch_num = 38
+    dir_man = DirectoryManager(model_name=model_name, mode=mode, branch_num=branch_num,
+                               load_num=epoch_num)
+    data_man = DataManager(os.getcwd())
     # assert test_params['test_batch'] >= store_num, 'batch size must be bigger than the number of storing image.'
     # =================================================================================================
 
@@ -34,23 +35,34 @@ if __name__ == "__main__":
     # ------------------------------------------------------------------------------------------------------------------
 
     # ============================================ Dataset ============================================
-    test_set = ImageFolder(root='./data/test', transform=transform_set)
+    test_set = DictFolder(root='./data/test', transform=transform_set)
     label_name = test_set.classes
     print(f'test set classes : {label_name}')
     print(f'test data : {len(test_set)} files detected.')
     test_loader = DataLoader(dataset=test_set, batch_size=test_params['test_batch'],
                               shuffle=False, num_workers=user_setting['test_processes'])
-    table = {i: label for i, label in enumerate(label_name)}
-    evaluator = Evaluator(class_table=table)
     # =================================================================================================
 
     # ------------------------------------------------------------------------------------------------------------------
 
     # =========================================== Model Load ==========================================
     netend = Classifier(2)
-    model = ResNet50(netend, 2)
-    print(f'target weight: {weight_dir}')
-    model.load_state_dict(torch.load(weight_dir))
+    model = ResNet34(netend, 2)
+    print(f'target weight: {dir_man.load()}')
+    model.load_state_dict(torch.load(dir_man.load()))
+    # =================================================================================================
+
+    # =========================================== Evaluator ===========================================
+    table = {i: label for i, label in enumerate(label_name)}
+    evaluator = Evaluator(class_table=table)
+    # =================================================================================================
+
+    # ======================================= image Sampler set =======================================
+    positive_cap = Captioner('Pneumonia', (225, 700), color=(0, 0, 255))
+    negative_cap = Captioner('Normal', (275, 700), color=(255, 0, 0))
+    gt_negative = Captioner('GT: Normal', (275, 100), color = (230, 230, 230))
+    gt_positive = Captioner('GT: Pneumonia', (275, 100), color=(255, 255, 255))
+    store_num = 2
     # =================================================================================================
 
     # ------------------------------------------------------------------------------------------------------------------
@@ -70,12 +82,11 @@ if __name__ == "__main__":
     # =================================================================================================
 
     # ------------------------------------------------------------------------------------------------------------------
-    os.makedirs(dst_dir, exist_ok=True)
-    print(f'save directory : {dst_dir}')
+
     # ============================================ run ================================================
     model.eval()
     for i, data in enumerate(test_loader):
-        image, label = data
+        image, label, name = data[tag_image], data[tag_label], data[tag_name]
 
         if environment['gpu']:
             image = image.cuda()
@@ -89,11 +100,28 @@ if __name__ == "__main__":
             value = value.cpu()
             indices = indices.cpu()
             label = label.cpu()
+            image_for_sample = image[:store_num].cpu()
+        else:
+            image_for_sample = image[:store_num]
 
-        # print(f'pred: {indices}')
-        # print(f'label: {label}')
+        # image labeling and sample
+        image_for_sample = np.ascontiguousarray(image_for_sample, dtype=np.uint8)
+
+        for j, (img, gt, title, index) in enumerate(zip(image_for_sample, label, name, indices)):
+            if gt == 0:  # normal
+                gt_negative.write(img)
+            elif gt == 1:  # pneumonia
+                gt_positive.write(img)
+
+            if index == 0: # normal
+                negative_cap.write(img)
+            elif index == 1: # pneumonia
+                positive_cap.write(img)
+
+        imgstore(image_for_sample*100.0, store_num, save_dir=dir_man.test_sample(), epoch=epoch_num, cls='test', filename=name)
 
         evaluator.record(indices, label)
+
         print(f'{(i+1) / len(test_loader) * 100:.2f} % processed.')
     # =================================================================================================
     print(f'Accuracy: {evaluator.accuracy():.3f}')
