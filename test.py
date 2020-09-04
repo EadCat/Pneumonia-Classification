@@ -15,7 +15,7 @@ if __name__ == "__main__":
     # ========================================== dir & param ==========================================
     mode = 'test'
     branch_num = 3
-    epoch_num = 50
+    epoch_num = 19
     dir_man = DirectoryManager(model_name=model_name, mode=mode, branch_num=branch_num,
                                load_num=epoch_num)
     data_man = DataManager(os.getcwd())
@@ -47,7 +47,7 @@ if __name__ == "__main__":
 
     # =========================================== Model Load ==========================================
     netend = Classifier(2)
-    model = ResNet34(netend, 2)
+    model = ResNet18(netend, 2)
     print(f'target weight: {dir_man.load()}')
     model.load_state_dict(torch.load(dir_man.load()))
     # =================================================================================================

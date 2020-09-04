@@ -28,8 +28,8 @@ model_name = 'ResNet18'
 # =============================== in training environment =================================
 params = OrderedDict()
 params['total_epochs'] = 50
-params['train_batch'] = 2
-params['valid_batch'] = 2
+params['train_batch'] = 80
+params['valid_batch'] = 80
 params['learning_rate'] = 1e-5
 params['num_classes'] = 2
 params['resized'] = (800, 800) # tuple

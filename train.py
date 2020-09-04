@@ -42,7 +42,7 @@ if __name__ == "__main__":
         params['resume_epoch'] = 1
         print('constructing network...')
         netend = net.Classifier(num_classes=params['num_classes'])
-        network = net.ResNet34(netend, pretrain=permission['pretrain']) # <- model definition
+        network = net.ResNet18(netend, pretrain=permission['pretrain']) # <- model definition
 
     elif mode is 'external_train':
         print('start training from epoch 1.')
@@ -175,15 +175,6 @@ if __name__ == "__main__":
                     utils.write_line({str(epoch)+':'+str(i+1): iter_loss_dict[str(epoch)+':'+str(i+1)]},
                                      os.path.join(dir_man.branch(), 'history', model_name+'_iter'+'.txt'))
                 iter_loss = 0.0  # reset
-
-            if permission['valid_predict_store']:
-                for img, gt, title in zip(image, label, name):
-                    if gt == 0:  # normal
-                        utils.imgstore(img, 1, save_dir=dir_man.train_predict_store(), epoch=epoch, cls='pred',
-                                       filename=title, Caption=negative_cap)
-                    elif gt == 1:  # pneumonia
-                        utils.imgstore(img, 1, save_dir=dir_man.train_predict_store(), epoch=epoch, cls='pred',
-                                       filename=title, Caption=positive_cap)
         # ========================================= training ==============================================
         # epoch loss print
         if epoch % user_setting['epoch_store_intervals'] == 0:
@@ -233,15 +224,6 @@ if __name__ == "__main__":
                     utils.write_line({str(epoch): val_loss_dict[str(epoch)]},
                                      os.path.join(dir_man.branch(), 'history', model_name+'_valid'+'.txt'))
                 iter_loss = 0.0
-
-                if permission['valid_predict_store']:
-                    for img, gt, title in zip(image, label, name):
-                        if gt == 0: # normal
-                            utils.imgstore(img, 1, save_dir=dir_man.train_predict_store(), epoch=epoch, cls='pred',
-                                           filename=title, Caption=negative_cap)
-                        elif gt == 1: # pneumonia
-                            utils.imgstore(img, 1, save_dir=dir_man.train_predict_store(), epoch=epoch, cls='pred',
-                                           filename=title, Caption=positive_cap)
 
         # ========================================= validating ==============================================
         print(f'{time.perf_counter()-epoch_start:.3f} seconds spended.')
