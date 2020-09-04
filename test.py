@@ -14,12 +14,19 @@ if __name__ == "__main__":
     # ------------------------------------------------------------------------------------------------------------------
     # ========================================== dir & param ==========================================
     mode = 'test'
-    branch_num = 3
-    epoch_num = 19
+    branch_num = 3 # <-- modify here
+    epoch_num = 49 # <-- modify here
     dir_man = DirectoryManager(model_name=model_name, mode=mode, branch_num=branch_num,
                                load_num=epoch_num)
     data_man = DataManager(os.getcwd())
     # assert test_params['test_batch'] >= store_num, 'batch size must be bigger than the number of storing image.'
+    # =================================================================================================
+
+    # =========================================== Model Load ==========================================
+    netend = Classifier(2)
+    model = ResNet18(netend, 2)  # <-- modify here
+    print(f'target weight: {dir_man.load()}')
+    model.load_state_dict(torch.load(dir_man.load()))
     # =================================================================================================
 
     # ------------------------------------------------------------------------------------------------------------------
@@ -44,13 +51,6 @@ if __name__ == "__main__":
     # =================================================================================================
 
     # ------------------------------------------------------------------------------------------------------------------
-
-    # =========================================== Model Load ==========================================
-    netend = Classifier(2)
-    model = ResNet18(netend, 2)
-    print(f'target weight: {dir_man.load()}')
-    model.load_state_dict(torch.load(dir_man.load()))
-    # =================================================================================================
 
     # =========================================== Evaluator ===========================================
     table = {i: label for i, label in enumerate(label_name)}
@@ -129,6 +129,10 @@ if __name__ == "__main__":
     print(f'Precision: {evaluator.precision():.3f}')
     print(f'Recall: {evaluator.recall():.3f}')
     print(f'F1 Score: {evaluator.f1_score():.3f}')
-    evaluator.heat_map()
+    write_line({'Precision': evaluator.precision()}, os.path.join(dir_man.test(), 'model eval.txt'))
+    write_line({'Recall': evaluator.recall()}, os.path.join(dir_man.test(), 'model eval.txt'))
+    write_line({'Accuracy': evaluator.accuracy()}, os.path.join(dir_man.test(), 'model eval.txt'))
+    write_line({'F1 Score': evaluator.f1_score()}, os.path.join(dir_man.test(), 'model eval.txt'))
+    evaluator.heat_map(store_dir=os.path.join(dir_man.test(), 'heatmap.png'))
     # ------------------------------------------------------------------------------------------------------------------
 

@@ -47,7 +47,7 @@ class Evaluator:
     def accuracy(self):
         return (self.tp + self.tn) / (self.tp + self.fp + self.fn + self.tn)
 
-    def heat_map(self):
+    def heat_map(self, store_dir=None, show=False):
         cm = np.array([[self.tp, self.fn], [self.fp, self.tn]])
         # print(f'tp : {self.tp}')
         # print(f'fp : {self.fp}')
@@ -59,8 +59,15 @@ class Evaluator:
         hm.set_xticklabels(reversed(self.values))
         hm.set_yticklabels(reversed(self.values))
         plt.title('heatmap metric')
-        plt.show()
+        if show:
+            plt.show()
+
+        if store_dir is not None:
+            figure = hm.get_figure()
+            figure.savefig(store_dir)
+
         return hm
+
 
 class CurvePlot:
     def __init__(self):

@@ -57,7 +57,7 @@ class DataManager:
 
 class DirectoryManager:
     # Saving Directory Manager
-    def __init__(self, model_name, mode='new', branch_num:int=None, load_num:int=None, external_weight:str=None):
+    def __init__(self, model_name=None, mode='new', branch_num:int=None, load_num:int=None, external_weight:str=None):
 
         # mode : 'new', 'load', 'overlay', 'test', 'external_train', 'external_test'
         # branch_num : target branch folder number for 'load' or 'overlay' or 'test'
@@ -211,10 +211,11 @@ class DirectoryManager:
         return os.path.join(self.test(), 'graph')
 
 
-class EnsembleManager(DirectoryManager):
+class EnsembleManager:
     def __init__(self, model_name, mode='Ensemble', branch_num:Union[list,tuple]=None, load_num:Union[list,tuple]=None):
-        super(EnsembleManager, self).__init__()
         self.model_name = list(model_name)
+        self.root_dir = os.getcwd()
+        self.weight_dir = os.path.join(self.root_dir, save_directory)
         self.mode = mode
         self.branch_list = list(branch_num)
         self.epoch_list = list(load_num)
@@ -230,8 +231,8 @@ class EnsembleManager(DirectoryManager):
         self.branch_num = branch_num
         self.load_num = load_num
         self.load_root = [os.path.join(self.weight_dir, 'branch_' + str(branch)) for branch in self.branch_num]
-        self.load_dir = [os.path.join(root, self.model_name + '_' + 'epoch_' + str(num) + '.pth')
-                         for root, num in zip(self.load_root, self.load_num)]
+        self.load_dir = [os.path.join(root, name + '_' + 'epoch_' + str(num) + '.pth')
+                         for name, root, num in zip(self.model_name, self.load_root, self.load_num)]
 
     def __str__(self):
         print('path.DirectoryManager class instance')
@@ -243,6 +244,13 @@ class EnsembleManager(DirectoryManager):
     def branch(self):
         return self.load_root
 
+    def load(self):
+        # return : load .pth model weights directory.
+        if self.load_dir is not None:
+            return self.load_dir
+        else:
+            print('load directory empty.')
+
     def last_branch(self):
         return self.branch_last
 
@@ -251,6 +259,13 @@ class EnsembleManager(DirectoryManager):
         os.makedirs(test_base, exist_ok=True)
         return test_base
 
+    def test_sample(self): # test prediction store directory
+        os.makedirs(os.path.join(self.test(), 'sample'), exist_ok=True)
+        return os.path.join(self.test(), 'sample')
+
+    def test_graph(self): # test graph store directory
+        os.makedirs(os.path.join(self.test(), 'graph'), exist_ok=True)
+        return os.path.join(self.test(), 'graph')
 
 
 

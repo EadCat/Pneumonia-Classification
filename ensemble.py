@@ -97,11 +97,11 @@ if __name__ == "__main__":
 
         output = torch.Tensor(np.zeros(shape=(len(models), len(label), test_params['num_classes'])))
 
-        for i, model in enumerate(models):
+        for j, model in enumerate(models):
             with torch.no_grad():
-                output[i, :, :] = model.forward(image)
+                output[j, :, :] = model.forward(image)
 
-        output = output.mean(1).mean(1)
+        output = output.mean(0)
 
         value, indices = output.max(-1)
 
@@ -138,6 +138,11 @@ if __name__ == "__main__":
     print(f'Precision: {evaluator.precision():.3f}')
     print(f'Recall: {evaluator.recall():.3f}')
     print(f'F1 Score: {evaluator.f1_score():.3f}')
-    evaluator.heat_map()
+    write_line({'Precision': evaluator.precision()}, os.path.join(dir_man.test(), 'model eval.txt'))
+    write_line({'Recall': evaluator.recall()}, os.path.join(dir_man.test(), 'model eval.txt'))
+    write_line({'Accuracy': evaluator.accuracy()}, os.path.join(dir_man.test(), 'model eval.txt'))
+    write_line({'F1 Score': evaluator.f1_score()}, os.path.join(dir_man.test(), 'model eval.txt'))
+    evaluator.heat_map(store_dir=os.path.join(dir_man.test(), 'heatmap.png'))
+
     # ------------------------------------------------------------------------------------------------------------------
 
