@@ -64,8 +64,27 @@ class Captioner:
                     fontScale=self.fontsize, color=self.color, thickness=self.thickness,
                     lineType=self.linetype)
 
+def dimension_change(Intensor) -> np.ndarray:
+    # Pytorch dim -> opencv dim
+    #  C X H X W  ->  H X W X C
+    try:
+        image = cuda2np(Intensor)
+    except TypeError as te:
+        image = np.array(Intensor)
+    finally:
+        pass
 
-def imgstore(Intensor, nums:int, save_dir:str, epoch:Union[int, str], filename='', cls='pred'):
+    if len(image.shape) == 3:
+        image = image.transpose((1, 2, 0))
+    elif len(image.shape) == 4:
+        image = image.transpose((0, 2, 3, 1))
+    else:
+        'weird dimension inputs.'
+
+    return image
+
+
+def imgstore(inarray, nums:int, save_dir:str, epoch:Union[int, str], filename='', cls='pred'):
     # function for saving prediction image.
     import os
     import cv2
@@ -73,9 +92,7 @@ def imgstore(Intensor, nums:int, save_dir:str, epoch:Union[int, str], filename='
     os.makedirs(save_dir, exist_ok=True)
 
     if isinstance(filename, str) or len(filename) == 1:  # stores only one image, batch == 1
-        image = cuda2np(Intensor)
-        image = np.transpose(image, (1, 2, 0))
-
+        image = inarray
         if isinstance(filename, list):
             filename = filename[0]
         if isinstance(epoch, str):
@@ -85,11 +102,8 @@ def imgstore(Intensor, nums:int, save_dir:str, epoch:Union[int, str], filename='
 
     elif isinstance(filename, list):  # stores <nums:int> images, batch > 1
         img_list = []
-        if not isinstance(Intensor, np.ndarray):
-        img_np = cuda2np(Intensor)
-        img_np = np.transpose(img_np, (0, 2, 3, 1))
 
-        for i, img in enumerate(img_np):
+        for i, img in enumerate(inarray):
             if i == nums:
                 break
             img_list.append(img)

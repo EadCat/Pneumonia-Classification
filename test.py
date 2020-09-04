@@ -105,6 +105,7 @@ if __name__ == "__main__":
             image_for_sample = image[:store_num]
 
         # image labeling and sample
+        image_for_sample = dimension_change(image_for_sample)
         image_for_sample = np.ascontiguousarray(image_for_sample, dtype=np.uint8)
 
         for j, (img, gt, title, index) in enumerate(zip(image_for_sample, label, name, indices)):
