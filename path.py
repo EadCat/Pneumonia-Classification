@@ -211,10 +211,45 @@ class DirectoryManager:
         return os.path.join(self.test(), 'graph')
 
 
+class EnsembleManager(DirectoryManager):
+    def __init__(self, model_name, mode='Ensemble', branch_num:Union[list,tuple]=None, load_num:Union[list,tuple]=None):
+        super(EnsembleManager, self).__init__()
+        self.model_name = list(model_name)
+        self.mode = mode
+        self.branch_list = list(branch_num)
+        self.epoch_list = list(load_num)
+        self.update(branch_num=branch_num, load_num=load_num)
 
+    def ensemble_base(self, make=True):
+        return os.path.join(self.weight_dir, 'ensemble')
 
+    def update(self, branch_num:list, load_num:list):
+        # update the manager corresponding to the mode.
+        self.branch_list = sorted(glob.glob(os.path.join(self.ensemble_base(), 'branch_*')))
+        self.branch_last = len(self.branch_list) + 1
+        self.branch_num = branch_num
+        self.load_num = load_num
+        self.load_root = [os.path.join(self.weight_dir, 'branch_' + str(branch)) for branch in self.branch_num]
+        self.load_dir = [os.path.join(root, self.model_name + '_' + 'epoch_' + str(num) + '.pth')
+                         for root, num in zip(self.load_root, self.load_num)]
 
+    def __str__(self):
+        print('path.DirectoryManager class instance')
+        print(f'model name =========> : {self.model_name}')
+        print(f'directory mode =====> : {self.mode}')
+        print(f'branch number ======> : {self.branch_num}')
+        print(f'load number ========> : {self.load_num}')
 
+    def branch(self):
+        return self.load_root
+
+    def last_branch(self):
+        return self.branch_last
+
+    def test(self):
+        test_base = os.path.join(self.ensemble_base(), 'branch_' + str(self.branch_last))
+        os.makedirs(test_base, exist_ok=True)
+        return test_base
 
 
 
