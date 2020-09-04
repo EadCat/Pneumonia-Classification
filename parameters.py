@@ -22,7 +22,7 @@ label_folder_name = r'labels'
 save_directory = r'save'
 
 # model name information for save and load
-model_name = 'ResNet34'
+model_name = 'ResNet18'
 
 # ============================= model parameter control panel =============================
 # =============================== in training environment =================================

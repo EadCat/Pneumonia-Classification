@@ -14,8 +14,8 @@ if __name__ == "__main__":
     # ------------------------------------------------------------------------------------------------------------------
     # ========================================== dir & param ==========================================
     mode = 'test'
-    branch_num = 2
-    epoch_num = 38
+    branch_num = 3
+    epoch_num = 50
     dir_man = DirectoryManager(model_name=model_name, mode=mode, branch_num=branch_num,
                                load_num=epoch_num)
     data_man = DataManager(os.getcwd())
@@ -58,10 +58,10 @@ if __name__ == "__main__":
     # =================================================================================================
 
     # ======================================= image Sampler set =======================================
-    positive_cap = Captioner('Pneumonia', (225, 700), color=(0, 0, 255))
-    negative_cap = Captioner('Normal', (275, 700), color=(255, 0, 0))
-    gt_negative = Captioner('GT: Normal', (275, 100), color = (230, 230, 230))
-    gt_positive = Captioner('GT: Pneumonia', (275, 100), color=(255, 255, 255))
+    positive_cap = Captioner('Pneumonia', (225, 750), color=(0, 0, 255))
+    negative_cap = Captioner('Normal', (275, 750), color=(255, 0, 0))
+    gt_negative = Captioner('GT: Normal', (225, 100), color = (230, 230, 230))
+    gt_positive = Captioner('GT: Pneumonia', (165, 100), color=(255, 255, 255))
     store_num = 2
     # =================================================================================================
 
