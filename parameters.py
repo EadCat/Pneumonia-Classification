@@ -28,8 +28,8 @@ model_name = 'ResNet34'
 # =============================== in training environment =================================
 params = OrderedDict()
 params['total_epochs'] = 50
-params['train_batch'] = 50
-params['valid_batch'] = 50
+params['train_batch'] = 2
+params['valid_batch'] = 2
 params['learning_rate'] = 1e-5
 params['num_classes'] = 2
 params['resized'] = (800, 800) # tuple
@@ -75,5 +75,5 @@ permission['epoch_print'] = True
 permission['iter_print'] = True
 permission['valid_print'] = True
 permission['pretrain'] = True
-permission['train_predict_store'] = True
+permission['valid_predict_store'] = True
 # =========================================================================================

@@ -1,13 +1,15 @@
 # Pytorch
 import torch
 import torchvision.transforms as transforms
-from torchvision.datasets import ImageFolder
+#from torchvision.datasets import ImageFolder
+
 from torch.utils.data import DataLoader
 
 # Parameter Setup
 from parameters import *
 
 # My Libraries
+from dataloader.dataset import DictFolder
 from path import *
 from networks import nets as net
 from functions import utils
@@ -106,8 +108,8 @@ if __name__ == "__main__":
         transforms.Normalize(mean=mean, std=std)
     ])
 
-    train_set = ImageFolder(root='./data/train', transform=transform_set)
-    valid_set = ImageFolder(root='./data/val', transform=transform_set)
+    train_set = DictFolder(root='./data/train', transform=transform_set)
+    valid_set = DictFolder(root='./data/val', transform=transform_set)
     print(f'training set classes : {train_set.classes}')
     print(f'validation set classes : {valid_set.classes}')
 
@@ -130,6 +132,8 @@ if __name__ == "__main__":
     train_loss_dict = {}
     iter_loss_dict = {}
     val_loss_dict = {}
+    positive_cap = utils.Captioner('Pneumonia', (225, 700), color=(0, 0, 255))
+    negative_cap = utils.Captioner('Normal', (275, 700), color=(255, 0, 0))
     # =========================== training epoch ===============================
     # training
     print(f'training start.')
@@ -141,7 +145,8 @@ if __name__ == "__main__":
         # ========================================= training ==============================================
         for i, data in enumerate(train_loader):
             # load
-            image, label = data
+            image, label = data[tag_image], data[tag_label]
+            name = data[tag_name]
 
             # gpu copy
             if environment['gpu']:
@@ -170,6 +175,15 @@ if __name__ == "__main__":
                     utils.write_line({str(epoch)+':'+str(i+1): iter_loss_dict[str(epoch)+':'+str(i+1)]},
                                      os.path.join(dir_man.branch(), 'history', model_name+'_iter'+'.txt'))
                 iter_loss = 0.0  # reset
+
+            if permission['valid_predict_store']:
+                for img, gt, title in zip(image, label, name):
+                    if gt == 0:  # normal
+                        utils.imgstore(img, 1, save_dir=dir_man.train_predict_store(), epoch=epoch, cls='pred',
+                                       filename=title, Caption=negative_cap)
+                    elif gt == 1:  # pneumonia
+                        utils.imgstore(img, 1, save_dir=dir_man.train_predict_store(), epoch=epoch, cls='pred',
+                                       filename=title, Caption=positive_cap)
         # ========================================= training ==============================================
         # epoch loss print
         if epoch % user_setting['epoch_store_intervals'] == 0:
@@ -199,9 +213,12 @@ if __name__ == "__main__":
                 iter_loss = 0.0
                 # ==================================== validation iter =========================================
                 for i, val in enumerate(valid_loader):
-                    image, label = val
+                    image, label = val[tag_image], val[tag_label]
+                    name = val[tag_name]
+
                     if environment['gpu']:  # gpu copy
                         image, label = image.cuda(), label.cuda()
+
                     with torch.no_grad():
                         output = network.forward(image)
 
@@ -216,6 +233,16 @@ if __name__ == "__main__":
                     utils.write_line({str(epoch): val_loss_dict[str(epoch)]},
                                      os.path.join(dir_man.branch(), 'history', model_name+'_valid'+'.txt'))
                 iter_loss = 0.0
+
+                if permission['valid_predict_store']:
+                    for img, gt, title in zip(image, label, name):
+                        if gt == 0: # normal
+                            utils.imgstore(img, 1, save_dir=dir_man.train_predict_store(), epoch=epoch, cls='pred',
+                                           filename=title, Caption=negative_cap)
+                        elif gt == 1: # pneumonia
+                            utils.imgstore(img, 1, save_dir=dir_man.train_predict_store(), epoch=epoch, cls='pred',
+                                           filename=title, Caption=positive_cap)
+
         # ========================================= validating ==============================================
         print(f'{time.perf_counter()-epoch_start:.3f} seconds spended.')
     # =========================== training epoch ===============================

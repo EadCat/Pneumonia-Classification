@@ -1,6 +1,8 @@
 import datetime
 import numpy as np
 from typing import Union
+import cv2
+from parameters import *
 
 def snapshot_maker(param_dict, dir:str):
     # record <.pth> model infomation snapshot.
@@ -43,33 +45,68 @@ def tensorview(Intensor, batch_idx):
     print(arr[batch_idx])
 
 
-def imgstore(Intensor, nums:int, save_dir:str, epoch:Union[int, str], filename='', cls='pred'):
+class Captioner:
+    def __init__(self, text:str, point:Union[tuple, list], fontface=cv2.FONT_HERSHEY_DUPLEX,
+                 fontsize=2, color=(0, 0, 255), thickness=2, linetype=cv2.LINE_AA):
+        self.text = text
+        self.location = point
+        self.fontface = fontface
+        self.fontsize = fontsize
+        self.color = color
+        self.thickness = thickness
+        self.linetype = linetype
+
+    def fix_text(self, text):
+        self.text = text
+
+    def write(self, img:np.ndarray):
+        cv2.putText(img, text=self.text, org=self.location, fontFace=self.fontface,
+                    fontScale=self.fontsize, color=self.color, thickness=self.thickness,
+                    lineType=self.linetype)
+
+
+def imgstore(Intensor, nums:int, save_dir:str, epoch:Union[int, str], filename='', cls='pred',
+             Caption:Captioner=None):
     # function for saving prediction image.
     import os
     import cv2
 
-    img_np = cuda2np(Intensor)
-    img_np = np.transpose(img_np, (0, 2, 3, 1))
-
     os.makedirs(save_dir, exist_ok=True)
 
-    img_list = []
+    if isinstance(filename, str) or len(filename) == 1:  # stores only one image, batch == 1
+        image = cuda2np(Intensor)
+        image = np.transpose(image, (1, 2, 0))
+        image = np.ascontiguousarray(image, dtype=np.uint8)
 
-    for i, img in enumerate(img_np):
-        if i == nums:
-            break
-        img_list.append(img)
-
-    if isinstance(filename, str):  # stores only one image, batch == 1
+        if isinstance(filename, list):
+            filename = filename[0]
         if isinstance(epoch, str):
-            cv2.imwrite(os.path.join(save_dir, cls + '_' + epoch + '_[' + filename + '].png'), img_list[0])
+            if Caption is not None:
+                Caption.write(image)
+            cv2.imwrite(os.path.join(save_dir, cls + '_' + epoch + '_[' + filename + '].png'), image)
         else:
-            cv2.imwrite(os.path.join(save_dir, cls+'_'+'epoch_'+str(epoch)+'_['+filename+'].png'), img_list[0])
+            if Caption is not None:
+                Caption.write(img=image)
+            cv2.imwrite(os.path.join(save_dir, cls+'_'+'epoch_'+str(epoch)+'_['+filename+'].png'), image)
 
     elif isinstance(filename, list):  # stores <nums:int> images, batch > 1
+        img_list = []
+        img_np = cuda2np(Intensor)
+        img_np = np.transpose(img_np, (0, 2, 3, 1))
+        img_np = np.ascontiguousarray(img_np, dtype=np.uint8)
+
+        for i, img in enumerate(img_np):
+            if i == nums:
+                break
+            img_list.append(img)
+
         for idx, unit in enumerate(img_list):
             if isinstance(epoch, str):
+                if Caption is not None:
+                    Caption.write(unit)
                 cv2.imwrite(os.path.join(save_dir, cls + '_' + epoch + '_[' + filename[idx] + '].png'), unit)
                 print(f"{os.path.join(save_dir, cls+'_'+epoch+'_['+filename[idx]+'].png')} saved.")
             else:
+                if Caption is not None:
+                    Caption.write(unit)
                 cv2.imwrite(os.path.join(save_dir, cls+'_'+'epoch_'+str(epoch)+'_['+filename[idx]+'].png'), unit)
