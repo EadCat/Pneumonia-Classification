@@ -14,8 +14,8 @@ if __name__ == "__main__":
     # ------------------------------------------------------------------------------------------------------------------
     # ========================================== dir & param ==========================================
     mode = 'test'
-    branch_num = 6 # <-- modify here
-    epoch_num = 49 # <-- modify here
+    branch_num = 6 # <-- modify here (branch directory)
+    epoch_num = 49 # <-- modify here (weights epoch number)
     dir_man = DirectoryManager(model_name=model_name, mode=mode, branch_num=branch_num,
                                load_num=epoch_num)
     data_man = DataManager(os.getcwd())
@@ -23,8 +23,8 @@ if __name__ == "__main__":
     # =================================================================================================
 
     # =========================================== Model Load ==========================================
-    netend = Classifier1(2)
-    model = ResNet18(netend, pretrain=permission['pretrain'])  # <-- modify here
+    netend = Classifier1(2)  # <- model definition
+    model = ResNet18(netend, pretrain=permission['pretrain'])  # <-- model definition
     print(f'target weight: {dir_man.load()}')
     model.load_state_dict(torch.load(dir_man.load()))
     # =================================================================================================
@@ -58,10 +58,14 @@ if __name__ == "__main__":
     # =================================================================================================
 
     # ======================================= image Sampler set =======================================
+    # Image Captioning Instances
+    # Model Prediction Captioning
     positive_cap = Captioner('Pneumonia', (225, 750), color=(0, 0, 255))
     negative_cap = Captioner('Normal', (275, 750), color=(255, 0, 0))
+    # Ground Truth Captioning
     gt_negative = Captioner('GT: Normal', (225, 100), color = (230, 230, 230))
     gt_positive = Captioner('GT: Pneumonia', (165, 100), color=(255, 255, 255))
+    # number of images to be saved per batch.
     store_num = 1
     # =================================================================================================
 
@@ -96,6 +100,7 @@ if __name__ == "__main__":
 
         value, indices = output.max(-1)
 
+        # VRAM -> RAM copy
         if environment['gpu']:
             value = value.cpu()
             indices = indices.cpu()
@@ -108,6 +113,7 @@ if __name__ == "__main__":
         image_for_sample = dimension_change(image_for_sample)
         image_for_sample = np.ascontiguousarray(image_for_sample, dtype=np.uint8)
 
+        # image captioning
         for j, (img, gt, title, index) in enumerate(zip(image_for_sample, label, name, indices)):
             if gt == 0:  # normal
                 gt_negative.write(img)
@@ -119,8 +125,10 @@ if __name__ == "__main__":
             elif index == 1: # pneumonia
                 positive_cap.write(img)
 
+        # sample image store
         imgstore(image_for_sample*100.0, store_num, save_dir=dir_man.test_sample(), epoch=epoch_num, cls='test', filename=name)
 
+        # record for evaluation
         evaluator.record(indices, label)
 
         print(f'{(i+1) / len(test_loader) * 100:.2f} % processed.')

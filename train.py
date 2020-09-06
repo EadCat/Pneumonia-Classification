@@ -101,7 +101,7 @@ if __name__ == "__main__":
 
     # =========================================== image pre-processing & load ==========================================
     transform_set = transforms.Compose([
-        #augmentation.AugManager(),
+        #augmentation.AugManager(), # Data Augmentation
         transforms.Resize(size=params['resized']),
         transforms.ToTensor(),
         transforms.Normalize(mean=params['mean'], std=params['std'])
@@ -128,11 +128,10 @@ if __name__ == "__main__":
         print(f'your validation epoch setting : {user_setting["validation_intervals"]}')
     else:
         print(f'validation disabled.')
+
     train_loss_dict = {}
     iter_loss_dict = {}
     val_loss_dict = {}
-    positive_cap = utils.Captioner('Pneumonia', (225, 700), color=(0, 0, 255))
-    negative_cap = utils.Captioner('Normal', (275, 700), color=(255, 0, 0))
     # =========================== training epoch ===============================
     # training
     print(f'training start.')
@@ -158,7 +157,7 @@ if __name__ == "__main__":
             output = network.forward(image)
 
             # loss operation
-            loss = loss_f(output, label)
+            loss = loss_f(output, label) # Softmax + CrossEntropyLoss
             epoch_loss += loss.item()
             iter_loss += loss.item()
             loss.backward()

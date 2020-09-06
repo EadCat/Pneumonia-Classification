@@ -13,16 +13,16 @@ from path import DataManager, EnsembleManager
 if __name__ == "__main__":
     # ------------------------------------------------------------------------------------------------------------------
     # ========================================== dir & param ==========================================
-    model_list = ['ResNet18', 'ResNet18', 'ResNet18', 'ResNet18', 'ResNet18']
-    branch_nums = [3, 3, 5, 5, 5]
-    epoch_num = [40, 49, 33, 56, 69]
+    model_list = ['ResNet18', 'ResNet18', 'ResNet18', 'ResNet18', 'ResNet18'] # <- model name definition here
+    branch_nums = [3, 3, 5, 5, 5] # <- directory branch selection
+    epoch_num = [40, 49, 33, 56, 69] # <- weights epoch number list
     dir_man = EnsembleManager(model_name=model_list, branch_num=branch_nums, load_num=epoch_num)
     data_man = DataManager(os.getcwd())
     # assert test_params['test_batch'] >= store_num, 'batch size must be bigger than the number of storing image.'
     # =================================================================================================
 
     # =========================================== Model Load ==========================================
-    models = [ResNet18(Classifier2(2), True), ResNet18(Classifier2(2), True),
+    models = [ResNet18(Classifier2(2), True), ResNet18(Classifier2(2), True), # <- model architecture definition here
               ResNet18(Classifier1(2), True), ResNet18(Classifier1(2), True),
               ResNet18(Classifier1(2), True)]
     print(f'target weight: {dir_man.load()}')
@@ -59,6 +59,7 @@ if __name__ == "__main__":
     # =================================================================================================
 
     # ======================================= image Sampler set =======================================
+    # Captioning Instances
     positive_cap = Captioner('Pneumonia', (225, 750), color=(0, 0, 255))
     negative_cap = Captioner('Normal', (275, 750), color=(255, 0, 0))
     gt_negative = Captioner('GT: Normal', (225, 100), color = (230, 230, 230))

@@ -28,14 +28,14 @@ model_name = 'ResNet18'
 # =============================== in training environment =================================
 params = OrderedDict()
 params['total_epochs'] = 50
-params['train_batch'] = 50
-params['valid_batch'] = 50
+params['train_batch'] = 3
+params['valid_batch'] = 3
 params['learning_rate'] = 1e-5
 params['num_classes'] = 2
 params['resized'] = (800, 800) # tuple
 params['mean'] = [0.485, 0.456, 0.406]
 params['std'] = [0.229, 0.224, 0.225]
-params['pretrain'] = 'model zoo'  # only for writing record
+params['pretrain'] = 'ImageNet'  # only for writing record
 params['optimizer'] = 'Adam' # <- It must be set manually. (snapshot record)
 params['loss_function'] = 'CrossEntropyLoss'  # <- It must be set manually. (snapshot record)
 # =========================================================================================
@@ -48,7 +48,7 @@ test_params['num_classes'] = 2
 test_params['resized'] = (800, 800)
 test_params['mean'] = [0.485, 0.456, 0.406]
 test_params['std'] = [0.229, 0.224, 0.225]
-test_params['pretrain'] = 'model zoo'
+test_params['pretrain'] = 'ImageNet'
 # =========================================================================================
 
 # ======================================== setting =========================================
