@@ -15,6 +15,7 @@ from networks import nets as net
 from functions import utils
 from functions.plot import PlotGenerator
 from networks.nets import *
+from functions import augmentation
 
 # Basic Utility
 import os
@@ -41,7 +42,7 @@ if __name__ == "__main__":
         print(f"total epoch: {params['total_epochs']}")
         params['resume_epoch'] = 1
         print('constructing network...')
-        netend = net.Classifier(num_classes=params['num_classes'])
+        netend = net.Classifier1(num_classes=params['num_classes'])
         network = net.ResNet18(netend, pretrain=permission['pretrain']) # <- model definition
 
     elif mode is 'external_train':
@@ -50,7 +51,7 @@ if __name__ == "__main__":
         print('constructing network...')
 
         # please define model here.
-        netend = net.Classifier(num_classes=params['num_classes'])
+        netend = net.Classifier1(num_classes=params['num_classes'])
         network = net.ResNet34(netend, pretrain=True)
 
         path = dir_man.load()
@@ -64,7 +65,7 @@ if __name__ == "__main__":
         params['resume_epoch'] = load_num + 1
         # model load
         print('constructing network...')
-        netend = Classifier(num_classes=params['num_classes'])
+        netend = Classifier1(num_classes=params['num_classes'])
         path = dir_man.load()
         network = net.ResNet50(netend, pretrain=permission['pretrain']) # <- model definition
         print(f'{dir_man.load()} loading...')
@@ -99,13 +100,11 @@ if __name__ == "__main__":
     # ===============================================================================
 
     # =========================================== image pre-processing & load ==========================================
-    mean = [0.485, 0.456, 0.406]
-    std = [0.229, 0.224, 0.225]
     transform_set = transforms.Compose([
         #augmentation.AugManager(),
         transforms.Resize(size=params['resized']),
         transforms.ToTensor(),
-        transforms.Normalize(mean=mean, std=std)
+        transforms.Normalize(mean=params['mean'], std=params['std'])
     ])
 
     train_set = DictFolder(root='./data/train', transform=transform_set)

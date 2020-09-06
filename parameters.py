@@ -28,8 +28,8 @@ model_name = 'ResNet18'
 # =============================== in training environment =================================
 params = OrderedDict()
 params['total_epochs'] = 50
-params['train_batch'] = 80
-params['valid_batch'] = 80
+params['train_batch'] = 50
+params['valid_batch'] = 50
 params['learning_rate'] = 1e-5
 params['num_classes'] = 2
 params['resized'] = (800, 800) # tuple
@@ -43,7 +43,7 @@ params['loss_function'] = 'CrossEntropyLoss'  # <- It must be set manually. (sna
 # ============================= model parameter control panel =============================
 # ================================= in test environment ===================================
 test_params = OrderedDict()
-test_params['test_batch'] = 100
+test_params['test_batch'] = 50
 test_params['num_classes'] = 2
 test_params['resized'] = (800, 800)
 test_params['mean'] = [0.485, 0.456, 0.406]
@@ -74,6 +74,6 @@ permission['shuffle'] = True
 permission['epoch_print'] = True
 permission['iter_print'] = True
 permission['valid_print'] = True
-permission['pretrain'] = True
+permission['pretrain'] = False
 permission['valid_predict_store'] = True
 # =========================================================================================

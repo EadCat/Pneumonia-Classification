@@ -13,11 +13,8 @@ class AugManager(object):
     def __init__(self, iaalist=None):
         if iaalist is None:
             iaalist = iaa.Sequential([
-                iaa.Sometimes(0.5, iaa.ChannelShuffle(0.3)),
-                iaa.Sometimes(0.5, iaa.MultiplyHue((0.5, 1.5))),
-                iaa.Sometimes(0.5, iaa.AddToHueAndSaturation((-50, 50), per_channel=True)),
-                iaa.Sometimes(0.5, iaa.Fliplr(0.5)),
-                iaa.Sometimes(0.5, iaa.Flipud(0.5)),
+                iaa.Sometimes(0.3, iaa.Fliplr(0.4)),
+                iaa.Sometimes(0.3, iaa.Flipud(0.4)),
                 iaa.Sometimes(0.5, iaa.Rotate((-30, 30)))
             ], random_order=True)
         self.transformSet = iaalist

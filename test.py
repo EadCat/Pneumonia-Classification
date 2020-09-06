@@ -14,7 +14,7 @@ if __name__ == "__main__":
     # ------------------------------------------------------------------------------------------------------------------
     # ========================================== dir & param ==========================================
     mode = 'test'
-    branch_num = 3 # <-- modify here
+    branch_num = 6 # <-- modify here
     epoch_num = 49 # <-- modify here
     dir_man = DirectoryManager(model_name=model_name, mode=mode, branch_num=branch_num,
                                load_num=epoch_num)
@@ -23,8 +23,8 @@ if __name__ == "__main__":
     # =================================================================================================
 
     # =========================================== Model Load ==========================================
-    netend = Classifier(2)
-    model = ResNet18(netend, 2)  # <-- modify here
+    netend = Classifier1(2)
+    model = ResNet18(netend, pretrain=permission['pretrain'])  # <-- modify here
     print(f'target weight: {dir_man.load()}')
     model.load_state_dict(torch.load(dir_man.load()))
     # =================================================================================================
@@ -62,7 +62,7 @@ if __name__ == "__main__":
     negative_cap = Captioner('Normal', (275, 750), color=(255, 0, 0))
     gt_negative = Captioner('GT: Normal', (225, 100), color = (230, 230, 230))
     gt_positive = Captioner('GT: Pneumonia', (165, 100), color=(255, 255, 255))
-    store_num = 2
+    store_num = 1
     # =================================================================================================
 
     # ------------------------------------------------------------------------------------------------------------------

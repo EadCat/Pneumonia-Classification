@@ -13,12 +13,21 @@ from path import DataManager, EnsembleManager
 if __name__ == "__main__":
     # ------------------------------------------------------------------------------------------------------------------
     # ========================================== dir & param ==========================================
-    model_list = ['ResNet50', 'ResNet34', 'ResNet34', 'ResNet34', 'ResNet18', 'ResNet18', 'ResNet18']
-    branch_nums = [1, 2, 2, 2, 3, 3, 3]
-    epoch_num = [42, 13, 38, 46, 21, 40, 49]
+    model_list = ['ResNet18', 'ResNet18', 'ResNet18', 'ResNet18', 'ResNet18']
+    branch_nums = [3, 3, 5, 5, 5]
+    epoch_num = [40, 49, 33, 56, 69]
     dir_man = EnsembleManager(model_name=model_list, branch_num=branch_nums, load_num=epoch_num)
     data_man = DataManager(os.getcwd())
     # assert test_params['test_batch'] >= store_num, 'batch size must be bigger than the number of storing image.'
+    # =================================================================================================
+
+    # =========================================== Model Load ==========================================
+    models = [ResNet18(Classifier2(2), True), ResNet18(Classifier2(2), True),
+              ResNet18(Classifier1(2), True), ResNet18(Classifier1(2), True),
+              ResNet18(Classifier1(2), True)]
+    print(f'target weight: {dir_man.load()}')
+    for model, path in zip(models, dir_man.load()):
+        model.load_state_dict(torch.load(path))
     # =================================================================================================
 
     # ------------------------------------------------------------------------------------------------------------------
@@ -43,15 +52,6 @@ if __name__ == "__main__":
     # =================================================================================================
 
     # ------------------------------------------------------------------------------------------------------------------
-
-    # =========================================== Model Load ==========================================
-    models = [ResNet50(Classifier(2), True), ResNet34(Classifier(2), True), ResNet34(Classifier(2), True),
-              ResNet34(Classifier(2), True), ResNet18(Classifier(2), True), ResNet18(Classifier(2), True),
-              ResNet18(Classifier(2), True)]
-    print(f'target weight: {dir_man.load()}')
-    for model, path in zip(models, dir_man.load()):
-        model.load_state_dict(torch.load(path))
-    # =================================================================================================
 
     # =========================================== Evaluator ===========================================
     table = {i: label for i, label in enumerate(label_name)}
@@ -101,7 +101,7 @@ if __name__ == "__main__":
             with torch.no_grad():
                 output[j, :, :] = model.forward(image)
 
-        output = output.mean(0)
+        output = output.mean(0) # soft vote
 
         value, indices = output.max(-1)
 
