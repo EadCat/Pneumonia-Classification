@@ -58,7 +58,7 @@ test samples:
 
 #### ensemble.py
 
-code for model ensemble. you have to pay attention to the order and fill the lists: <'model_list', branch_nums, epoch_nums, models>
+code for model ensemble. you have to pay attention to the order and fill the lists: <'model_list', 'branch_nums', 'epoch_nums', 'models'>
 
 1. model_list: names of the model in the weight files
 2. branch_nums: branch address of target weight file
