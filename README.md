@@ -6,7 +6,7 @@ used data : https://www.kaggle.com/paultimothymooney/chest-xray-pneumonia
 
 test samples:
 
-<img src="./save/ResNet18/test/epoch_40/sample/test_epoch_40_[NORMAL2-IM-0338-0001.jpeg].png" alt="sample1" style="zoom:40%;" /><img src="./save/ResNet18/test/epoch_40/heatmap.png" alt="heatmap" style="zoom:70%;" />
+<img src="./save/ResNet18/test/epoch_40/sample/test_epoch_40_[NORMAL2-IM-0338-0001.jpeg].png" width="40%"><img src="./save/ResNet18/test/epoch_40/heatmap.png" width="60%">
 
 ---
 
@@ -43,10 +43,9 @@ test samples:
 #### parameters.py
 
 1. model_name
-
- 	2. params: parameters used in training and validation
- 	3. test_params: parameters used in test
- 	4. user_setting, permission
+2. params: parameters used in training and validation
+3. test_params: parameters used in test
+4. user_setting, permission
 
 ---
 
